@@ -1,0 +1,30 @@
+{% extends "base_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% load static %}
+  <!-- Form for creating/updating an Ad -->
+  <h2>Create or Update an Ad</h2>
+  <form method="POST" enctype="multipart/form-data" id="ad-form">
+    {% csrf_token %}
+    {{ form.as_p }} <!-- Render form fields -->
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+
+
+
+  <!-- Include file upload validation logic -->
+  <script src="{% static 'form-handler.js' %}"></script>
+  <script>
+    document.getElementById("ad-form").addEventListener("submit", function(event) {
+      console.log('Validating file size');
+      if (window.File && window.FileReader && window.FileList && window.Blob) {
+          var fileInput = document.getElementById('id_{{ form.upload.name }}');  <!-- Adjust field name -->
+          var file = fileInput ? fileInput.files[0] : null;
+          if (file && file.size > {{ form.upload.field.max_length|default:10485760 }}) {  <!-- Max upload size logic -->
+              alert("File " + file.name + " exceeds the size limit of 10MB.");
+              event.preventDefault();
+          }
+      }
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Edit dj4e-samples/settings.py and add APP_NAME = 'DJ4E Samples' or similar -->
+<title>{% block title %}AdPulse{% endblock %}</title>
+
+<!-- Replace this value (42-42) with the one provided by the autograder -->
+<meta name="dj4e" content="35f476bee2f5015ba0269e3b346f2d13">
+
+<meta name="dj4e-code" content="42159943173930">
+
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<link rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"
+    crossorigin="anonymous">
+
+<link rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap-theme.min.css"
+    crossorigin="anonymous">
+
+<link rel="stylesheet"
+    href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css"
+     crossorigin="anonymous">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+    crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"
+    crossorigin="anonymous"></script>
+
+<script
+  src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
+  crossorigin="anonymous"></script>
+
+<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/v4-shims.css">
+
+<meta name="dj4e-version" content="2020-03-26">
+
+{% block head %} {% endblock %}
+
+</head>
+<body>
+<div class="container">
+
+{% block navbar %}
+<nav class=" text-success">
+    {% if user.is_authenticated %}
+    <a href="{% url 'ads:ad_list' %}">Home</a>
+    <a href="#" id="logout" onclick="document.getElementById('logout-form').submit();">Logout</a>
+
+<form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+    {% csrf_token %}
+</form>
+<a href="{% url 'login' %}?next={% url 'ads:ad_list' %}">Login</a>
+    <a href="{% url 'ads:ad_create' %}">Create Ad</a>
+    {% else %}
+        <a href="{% url 'login' %}?next={% url 'ads:ad_list' %}">Login</a>
+    {% endif %}
+</nav>
+{% endblock %}
+
+
+{% block welcome %} {% endblock %}
+{% block messages %}
+    {% if messages %}
+    {% for msg in messages %}
+        <div class="alert alert-{{msg.level_tag}}" role="alert">
+        {{msg.message}}
+        </div>
+    {% endfor %}
+    {% endif %}
+{% endblock %}
+{% block content %}
+{% endblock %}
+</div>
+{% block footer %} {% endblock %}
+
+</body>
+
+</html>

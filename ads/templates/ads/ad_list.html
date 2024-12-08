@@ -1,0 +1,122 @@
+{% extends "base_menu.html" %}
+{%load static%}
+{% block content %}
+
+<!-- Search form -->
+<div style="float:right; margin:20px;">
+    <form method="get" action="{% url 'ads:ad_list' %}">
+        <input type="text" placeholder="Search ads by title, text, or tags" name="search" value="{{ search }}">
+        <button type="submit" title="Search"><i class="fa fa-search"></i></button>
+        <a href="{% url 'ads:ad_list' %}" title="Clear search"><i class="fa fa-undo"></i></a>
+    </form>
+</div>
+<h1>Ads</h1>
+
+<!-- Displaying ads -->
+{% if ad_list %}
+    <div class="container">
+    <div class="row">
+        {% for ad in ad_list %}
+        <div class="col-md-4" style="margin-bottom: 20px;"> <!-- 4 columns in Bootstrap grid -->
+            <div class="card" style="width: 100%; margin: auto;">
+                {% if ad.picture %}
+                <img class="card-img-top img-fluid" src="{{ ad.picture.url }}" alt="Ad Image" style="object-fit: cover; height: 200px;">
+                {% else %}
+                <img class="card-img-top img-fluid" src="{% static 'path/to/default/image.jpg' %}" alt="Default Ad Image" style="object-fit: cover; height: 200px;">
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title text-dark">
+                        <a href="{% url 'ads:ad_detail' ad.id %}">{{ ad.title }}</a>
+                    </h5>
+                    <p class="card-text">{{ ad.text }}</p>
+                    <p><strong>Tags:</strong> {{ ad.tags.all|join:", " }}</p>
+
+                    {% if user.is_authenticated %}
+                    <a href="#" onclick="favPost('{% url 'ads:ad_unfavorite' ad.id %}', {{ ad.id }} ); return false;"
+                       {% if ad.id not in favorites %} style="display: none;" {% endif %}
+                       id="favorite_star_{{ad.id}}">
+                        <span class="fa fa-star" style="color: orange;"></span>
+                    </a>
+                    <a href="#" onclick="favPost('{% url 'ads:ad_favorite' ad.id %}', {{ ad.id }} ); return false;"
+                       {% if ad.id in favorites %} style="display: none;" {% endif %}
+                       id="unfavorite_star_{{ad.id}}">
+                        <span class="fa fa-star-o"></span>
+                    </a>
+                    {% endif %}
+
+                    {% if ad.owner == user %}
+                        <a href="{% url 'ads:ad_update' ad.id %}" class="btn btn-success">Edit</a>
+                        <a href="{% url 'ads:ad_delete' ad.id %}" class="btn btn-danger">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+
+        {% if ad_list.has_previous %}
+            <a href="?page=1&search={{ search }}">First</a>
+            <a href="?page={{ ad_list.previous_page_number }}&search={{ search }}">Previous</a>
+        {% endif %}
+        <span>Page {{ ad_list.number }} of {{ ad_list.paginator.num_pages }}</span>
+        {% if ad_list.has_next %}
+            <a href="?page={{ ad_list.next_page_number }}&search={{ search }}">Next</a>
+            <a href="?page={{ ad_list.paginator.num_pages }}&search={{ search }}">Last</a>
+        {% endif %}
+    </div>
+
+{% else %}
+    <p>There are no ads in the database.</p>
+{% endif %}
+
+<!-- User login/logout -->
+{% if user.is_authenticated %}
+    <a href="#" id="logout" style="color:white; background-color:black; margin:10px; padding:10px;" onclick="document.getElementById('logout-form').submit();">Logout</a>
+    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+        {% csrf_token %}
+    </form>
+{% else %}
+    <a href="{% url 'login' %}?next={% url 'ads:ad_list' %}" style="color:white; background-color:black; margin:10px; padding:10px;">Login</a>
+{% endif %}
+
+
+<script>
+function toggleInlineDisplay(star_id) {
+    var elem = document.getElementById(star_id);
+    if(window.getComputedStyle(elem).display == "inline") {
+        elem.style.display = 'none';
+        elem.dataset.previousDisplay = 'inline';
+    } else if(window.getComputedStyle(elem).display == "block") {
+        elem.style.display = 'none';
+        elem.dataset.previousDisplay = 'block';
+    } else {
+        console.log('prev', elem.dataset.previousDisplay);
+        if ( typeof elem.dataset.previousDisplay == 'string' ) {
+            elem.style.display = elem.dataset.previousDisplay
+        } else {
+            elem.style.display = 'inline';
+        }
+    }
+}
+
+function favPost(url, ad_id) {
+    console.log('POSTing to', url);
+    fetch(url, { method: 'POST', body: '{}' } )
+    .then((response) => {
+        console.log(url, 'finished');
+        toggleInlineDisplay("unfavorite_star_"+ad_id);
+        toggleInlineDisplay("favorite_star_"+ad_id);
+    }).catch((error) => {
+        alert('Url failed with '+error+' '+url);
+    });
+}
+</script>
+{% endblock %}
+
+
+

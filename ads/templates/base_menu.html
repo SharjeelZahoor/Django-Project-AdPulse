@@ -1,0 +1,31 @@
+{% extends "base_bootstrap.html" %}
+{% block navbar %}
+{% load app_tags %}
+{% load gravatar %}
+
+<nav class="navbar navbar-default navbar-inverse" style="width: 100%; margin: auto; height: 50px;">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/" style="font-size: 24px; color: white; font-weight: 800px;">AdPulse</a>
+      </div>
+      <ul class="nav navbar-nav navbar-right">
+        {% if user.is_authenticated %}
+          <li>
+            <a href="{% url 'ads:ad_create' %}" class="btn btn-success" style="margin: 5px; font-weight: 800px; padding: 5px 10px; font-size: 14px;">Create Ad</a>
+          </li>
+          <li>
+            <a href="#" id="logout" class="btn btn-danger" style="margin: 5px; font-weight: bold; padding: 5px 10px; font-size: 14px;" onclick="document.getElementById('logout-form').submit();">Logout</a>
+            <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+              {% csrf_token %}
+            </form>
+          </li>
+        {% else %}
+          <li>
+            <a href="{% url 'login' %}?next={% url 'ads:ad_list' %}" class="btn btn-success" style="margin: 5px; font-weight: bold; padding: 5px 10px; font-size: 14px;">Login</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+{% endblock %}
